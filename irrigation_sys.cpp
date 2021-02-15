@@ -19,12 +19,14 @@ const int MAX_SIZE = MAX_HEIGHT * MAX_WIDTH;
 class Sector{
     protected:
         char state = 'G';
-        char hydrationchoices[3] = {'R','Y','\0'};
+        char hydrationchoices[2] = {'R','Y'};
     public:
         int irrigate_sector(){
             using namespace std::this_thread;     // sleep_for, sleep_until
             using namespace std::chrono; // seconds
             char s = 'G';
+
+            cout << "Entering Irrigation function";
 
             if(getState()=='Y'){
                 sleep_for(seconds(MIN_TIME));
@@ -111,8 +113,6 @@ int irrigate_plot(Sector plot [][MAX_HEIGHT]){
     }
     return 0;
 }
-
-
 int main(){
     Sector plot[MAX_WIDTH][MAX_HEIGHT];
     while(1){
