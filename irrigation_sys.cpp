@@ -21,6 +21,7 @@ class Sector{
         char state = 'G';
         char hydrationchoices[2] = {'R','Y'};
     public:
+        //irrigation of dehydrated sectors
         int irrigate_sector(){
             using namespace std::this_thread;     // sleep_for, sleep_until
             using namespace std::chrono; // seconds
@@ -28,65 +29,61 @@ class Sector{
 
             cout << "Entering Irrigation function";
 
-            if(getState()=='Y'){
+            if(getState() == 'Y'){
                 sleep_for(seconds(MIN_TIME));
                 change_state(s);
                 return 0;
             }
-            else if(getState()=='R'){
+            else if(getState() == 'R'){
                 sleep_for(seconds(MAX_TIME));
                 change_state(s);
                 return 0;
             }
-            else if(getState()=='G'){
-                return 0;
-            }
+            else if(getState() == 'G'){return 0;}
             return 1;
         }
 
+        //creates a dehydrated sector with random level of decay
         int dehydrate_sector(){
             srand (time(NULL)); //initialize serail randomizer
             change_state(hydrationchoices[rand()% 1 + 0]);
             return 0;
         }
 
-        char getState(){
-            return state;
-        }
+        //get hydration state of plot sector
+        char getState(){return state;}
 
     private:
+        //private sector state changer
         int change_state(char s){
-            if(state != s){
-                state = s;
-            }
+            if(state != s){state = s;}
             return 0;
         }
 };
 
+//display plot
 void print_plot(Sector plot[][MAX_HEIGHT]){
-    for(int i = 0; i++; i<MAX_HEIGHT){
-        for(int j = 0; j++; j<MAX_WIDTH){
-            cout << plot[i][j].getState()<< " ";
-        }
+    for(int i = 0; i++; i < MAX_HEIGHT){
+        for(int j = 0; j++; j<MAX_WIDTH){cout << plot[i][j].getState()<< " ";}
         cout << "\n";
     }
 }
 
+//handler for randomly selecting sector to dehydrate
 void crop_dehydration(Sector plot[][MAX_HEIGHT]){
     srand (time(NULL)); //initialize serail randomizer
-    for(int i = 0; i++; i<MAX_DECAY){
+    for(int i = 0; i++; i < MAX_DECAY){
         int x = rand()% (MAX_WIDTH-1) + 0;
         int y = rand()% (MAX_HEIGHT-1) + 0;
         
-        if(plot[x][y].getState() == 'G'){
-            plot[x][y].dehydrate_sector();
-        }
+        if(plot[x][y].getState() == 'G'){plot[x][y].dehydrate_sector();}
     }
 }
 
-int irrigate_plot(Sector plot [][MAX_HEIGHT]){
-    for(int i = 0; i++; i<round(MAX_HEIGHT/4)){
-        for(int j = 0; j++; j<MAX_WIDTH){
+//handler for irrigation of plot which is completed in 3 threads
+int irrigate_plot(Sector plot[][MAX_HEIGHT]){
+    for(int i = 0; i++; i < round(MAX_HEIGHT/4)){
+        for(int j = 0; j++; j < MAX_WIDTH){
             if(plot[i][j].getState() != 'G'){
                 thread t1(plot[i][j].irrigate_sector());
                 t1.join();
@@ -94,8 +91,8 @@ int irrigate_plot(Sector plot [][MAX_HEIGHT]){
         }
     }
 
-    for(int i = round(MAX_HEIGHT/4); i++; i<round(MAX_HEIGHT/2)){
-        for(int j = 0; j++; j<MAX_WIDTH){
+    for(int i = round(MAX_HEIGHT/4); i++; i < round(MAX_HEIGHT/2)){
+        for(int j = 0; j++; j < MAX_WIDTH){
             if(plot[i][j].getState() != 'G'){
                 thread t2(plot[i][j].irrigate_sector());
                 t2.join();
@@ -103,8 +100,8 @@ int irrigate_plot(Sector plot [][MAX_HEIGHT]){
         }
     }
 
-    for(int i = round(MAX_HEIGHT/2); i++; i<round(MAX_HEIGHT)){
-        for(int j = 0; j++; j<MAX_WIDTH){
+    for(int i = round(MAX_HEIGHT/2); i++; i < MAX_HEIGHT){
+        for(int j = 0; j++; j < MAX_WIDTH){
             if(plot[i][j].getState() != 'G'){
                 thread t3(plot[i][j].irrigate_sector());
                 t3.join();
@@ -113,6 +110,8 @@ int irrigate_plot(Sector plot [][MAX_HEIGHT]){
     }
     return 0;
 }
+
+//main function
 int main(){
     Sector plot[MAX_WIDTH][MAX_HEIGHT];
     while(1){
