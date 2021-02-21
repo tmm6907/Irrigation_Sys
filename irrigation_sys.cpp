@@ -6,13 +6,13 @@
 using namespace std;
 
 //decay characteristics
-const int MAX_DECAY = 2;
+const int MAX_DECAY = 30;
 const int MAX_TIME = 3;
 const int MIN_TIME = 1;
 
 //paramaters of farm size
-const int MAX_WIDTH = 5;
-const int MAX_HEIGHT = 5;
+const int MAX_WIDTH = 25;
+const int MAX_HEIGHT = 25;
 const int MAX_SIZE = MAX_HEIGHT * MAX_WIDTH;
 
 //red and yellow sector initializations
@@ -47,7 +47,7 @@ class Sector{
 
         //creates a dehydrated sector with random level of decay
         int dehydrate_sector(){
-            srand (time(NULL)); //initialize serail randomizer
+            srand (rand()); //initialize serail randomizer
             change_state(hydrationchoices[rand()% 2 + 0]);
             return 0;
         }
@@ -77,51 +77,45 @@ int print_plot(Sector plot[][MAX_HEIGHT]){
 void crop_dehydration(Sector plot[][MAX_HEIGHT]){
     srand (time(NULL)); //initialize serail randomizer
     for(int i = 0;i < MAX_DECAY; i++){
+        
         int x = rand()% (MAX_WIDTH-1) + 0;
+        
         int y = rand()% (MAX_HEIGHT-1) + 0;
         
         if(plot[x][y].getState() == 'G'){plot[x][y].dehydrate_sector();}
     }
 }
-int irrigate(Sector sector){
-        sector.irrigate_sector();
-        return 0;
-}
-//handler for irrigation of plot which is completed in 3 threads
-int irrigate_plot(Sector plot[][MAX_HEIGHT]){
-    int m4 = round(MAX_HEIGHT/4);
-    int m2 = round(MAX_HEIGHT/2);
-    
-    for(int i = 0; i < m4; i++){
-        for(int j = 0;j < MAX_WIDTH; j++){
-            if(plot[i][j].getState() != 'G'){
-                thread t1(irrigate, plot[i][j]);
-                t1.join();
-            }
-        }
-    }
 
-    for(int i = m4; i < m2; i++){
-        for(int j = 0;j < MAX_WIDTH; j++){
-            if(plot[i][j].getState() != 'G'){
-                thread t2(irrigate, plot[i][j]);
-                t2.join();
-            }
-        }
-    }
-
-    for(int i = m2; i < MAX_HEIGHT; i++){
-        for(int j = 0;j < MAX_WIDTH; j++){
-            if(plot[i][j].getState() != 'G'){
-                thread t3(irrigate, plot[i][j]);
-                t3.join();
-            }
-        }
+int irrigate(Sector plot[][MAX_HEIGHT], int i, int j){
+    for(int x=0; x < j; x++){
+        if(plot[i][x].getState() != 'G'){plot[i][x].irrigate_sector();}
+        print_plot(plot);
     }
     return 0;
 }
 
+//handler for irrigation of plot which is completed in 3 threads
+int irrigate_plot(Sector plot[][MAX_HEIGHT]){
+    int m4 = round(MAX_HEIGHT/4);
+    int m2 = round(MAX_HEIGHT/2);
 
+    
+    for(int i = 0; i < m4; i++){
+        thread t1(irrigate, plot, i, MAX_WIDTH);
+        t1.join();
+    }
+
+    for(int i = m4; i < m2; i++){
+        thread t2(irrigate, plot, i , MAX_WIDTH);
+        t2.join();    
+    }
+
+    for(int i = m2; i < MAX_HEIGHT; i++){
+        thread t3(irrigate, plot, i , MAX_WIDTH);
+        t3.join();
+    }
+    return 0;
+}
 
 //main function
 int main(){
