@@ -1,9 +1,15 @@
+//irrigation_sys.cpp
+//Author: Terrence Moore
+
+
 #include <stdlib.h> //srand, rand
 #include <time.h> //time
 #include <thread> //thread
 #include <math.h> //round
 #include <iostream> //cout
 using namespace std;
+
+
 
 //decay characteristics
 const int MAX_DECAY = 30;
@@ -15,16 +21,18 @@ const int MAX_WIDTH = 25;
 const int MAX_HEIGHT = 25;
 const int MAX_SIZE = MAX_HEIGHT * MAX_WIDTH;
 
-//red and yellow sector initializations
+//class to handle dehydration, rehydration and analysis of each spot in a farm
 class Sector{
     protected:
-        
+        //hydration types
         char hydrationchoices[2] = {'R','Y'};
     public:
         char state = 'G';
-        //irrigation of dehydrated sectors
+
+        //irrigation and irrigation time handler
         int irrigate_sector(){
-            using namespace std::this_thread;     // sleep_for, sleep_until
+            // sleep_for, sleep_until
+            using namespace std::this_thread;
             using namespace std::chrono; 
             char s = 'G';
 
@@ -45,7 +53,7 @@ class Sector{
             return 0;
         }
 
-        //creates a dehydrated sector with random level of decay
+        //creates a dehydrated sector with random level of dehydration
         int dehydrate_sector(){
             srand (rand()); //initialize serail randomizer
             change_state(hydrationchoices[rand()% 2 + 0]);
@@ -86,6 +94,7 @@ void crop_dehydration(Sector plot[][MAX_HEIGHT]){
     }
 }
 
+//calls Sector class irrigation function on each sector in current row
 int irrigate(Sector plot[][MAX_HEIGHT], int i, int j){
     for(int x=0; x < j; x++){
         if(plot[i][x].getState() != 'G'){plot[i][x].irrigate_sector();}
@@ -99,7 +108,7 @@ int irrigate_plot(Sector plot[][MAX_HEIGHT]){
     int m4 = round(MAX_HEIGHT/4);
     int m2 = round(MAX_HEIGHT/2);
 
-    
+    //splits irrigation job into three separate threads
     for(int i = 0; i < m4; i++){
         thread t1(irrigate, plot, i, MAX_WIDTH);
         t1.join();
