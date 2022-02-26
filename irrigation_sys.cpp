@@ -1,5 +1,11 @@
-//irrigation_sys.cpp
-//Author: Terrence Moore
+/*irrigation_sys.cpp
+
+Author: Terrence Moore
+Purpose: Recreate Python attempt at a mock irrigation system for a given 2-D array to
+practice C++ skills. This attempt will also include use of multithreading for increased
+performance.
+
+*/
 
 
 #include <stdlib.h> //srand, rand
@@ -17,8 +23,8 @@ const int MAX_TIME = 3;
 const int MIN_TIME = 1;
 
 //paramaters of farm size
-const int MAX_WIDTH = 25;
-const int MAX_HEIGHT = 25;
+const int MAX_WIDTH = 5;
+const int MAX_HEIGHT = 5;
 const int MAX_SIZE = MAX_HEIGHT * MAX_WIDTH;
 
 //class to handle dehydration, rehydration and analysis of each spot in a farm
@@ -85,9 +91,7 @@ int print_plot(Sector plot[][MAX_HEIGHT]){
 void crop_dehydration(Sector plot[][MAX_HEIGHT]){
     srand (time(NULL)); //initialize serail randomizer
     for(int i = 0;i < MAX_DECAY; i++){
-        
         int x = rand()% (MAX_WIDTH-1) + 0;
-        
         int y = rand()% (MAX_HEIGHT-1) + 0;
         
         if(plot[x][y].getState() == 'G'){plot[x][y].dehydrate_sector();}
